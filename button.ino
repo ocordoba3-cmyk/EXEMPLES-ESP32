@@ -1,18 +1,22 @@
-#define BUTTON_PIN 13  // GPIO21 pin connected to button
-#define DEBOUNCE_TIME  50 // debounce time in milliseconds
+#define BUTTON_PIN 13       // GPIO13 connectat al botó
+#define DEBOUNCE_TIME 50    // temps de debounce en ms
 
-// Variables for debounce logic
-int lastSteadyState = LOW;
-int lastFlickerableState = LOW;
+// Variables per al debounce
+int lastSteadyState = HIGH;
+int lastFlickerableState = HIGH;
 int currentState;
 unsigned long lastDebounceTime = 0;
 
+// Comptador de pulsacions
+int counter = 0;
+
 void setup() {
   Serial.begin(9600);
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_PIN, INPUT_PULLUP); // Botó amb resistència pull-up interna
 }
 
-bool button() {
+// Funció que encapsula la lectura del botó amb debounce
+bool buttonPressed() {
   currentState = digitalRead(BUTTON_PIN);
 
   if (currentState != lastFlickerableState) {
@@ -27,13 +31,13 @@ bool button() {
       return (currentState == LOW);
     }
   }
-
-  // Retorna false si no hi ha canvi o el botó no està premut
   return false;
 }
 
 void loop() {
-  if (button()) {
-    Serial.println("Botó premut");
+  if (buttonPressed()) {
+    counter++;
+    Serial.print("Botó premut! Comptador = ");
+    Serial.println(counter);
   }
 }
