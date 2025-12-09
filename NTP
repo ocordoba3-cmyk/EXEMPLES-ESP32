@@ -1,0 +1,56 @@
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include "time.h"
+
+// Credencials Wi-Fi (Wokwi-GUEST per defecte)
+const char* ssid = "Wokwi-GUEST";
+const char* password = "";
+
+// Configuració NTP
+const char* ntpServer = "pool.ntp.org";
+const long gmtOffset_sec = 3600;   // UTC+1 per Espanya
+const int daylightOffset_sec = 3600; // Horari d’estiu
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, password);
+
+  Serial.print("Connectant a WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println(" Connectat!");
+
+  // --- NTP ---
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  struct tm timeinfo;
+  if (getLocalTime(&timeinfo)) {
+    Serial.println("Hora actual via NTP:");
+    Serial.println(&timeinfo, "%A, %d %B %Y %H:%M:%S");
+  } else {
+    Serial.println("Error obtenint l’hora via NTP");
+  }
+
+  // --- HTTP ---
+  if(WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    http.begin("http://worldtimeapi.org/api/timezone/Europe/Madrid");
+    int httpCode = http.GET();
+
+    if(httpCode > 0) {
+      String payload = http.getString();
+      Serial.println("Resposta HTTP:");
+      Serial.println(payload);
+    } else {
+      Serial.println("Error en la petició HTTP");
+    }
+    http.end();
+  }
+
+  Serial.println("Fi de la prova de connexió");
+}
+
+void loop() {
+  // No fem res al loop
+}
