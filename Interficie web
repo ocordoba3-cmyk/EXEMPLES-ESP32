@@ -1,0 +1,92 @@
+/*
+ * ESP32 Web Server amb canvi de color RGB
+ */
+
+#include <DIYables_ESP32_WebServer.h>
+
+// Pins per al LED RGB
+#define LED_R_PIN 21      // Canal vermell
+#define LED_G_PIN 22      // Canal verd
+#define LED_B_PIN 23      // Canal blau
+
+// Credencials WiFi
+const char WIFI_SSID[] = "YOUR_WIFI_SSID";
+const char WIFI_PASSWORD[] = "YOUR_WIFI_PASSWORD";
+
+// Web server
+DIYables_ESP32_WebServer server;
+
+// HTML de la pàgina
+String getHTML() {
+  String html = "<!DOCTYPE HTML><html><head><link rel='icon' href='data:,'></head>";
+  html += "<h2>ESP32 Web Server - RGB Control</h2>";
+  html += "<a href='/led/red'>Red</a> | ";
+  html += "<a href='/led/green'>Green</a> | ";
+  html += "<a href='/led/blue'>Blue</a> | ";
+  html += "<a href='/led/offrgb'>RGB OFF</a>";
+  html += "</html>";
+  return html;
+}
+
+// Handlers
+void handleHome(WiFiClient& client, const String& method, const String& request,
+                const QueryParams& params, const String& jsonData) {
+  server.sendResponse(client, getHTML().c_str());
+}
+
+void handleLedRed(WiFiClient& client, const String& method, const String& request,
+                  const QueryParams& params, const String& jsonData) {
+  analogWrite(LED_R_PIN, 255);
+  analogWrite(LED_G_PIN, 0);
+  analogWrite(LED_B_PIN, 0);
+  server.sendResponse(client, getHTML().c_str());
+}
+
+void handleLedGreen(WiFiClient& client, const String& method, const String& request,
+                    const QueryParams& params, const String& jsonData) {
+  analogWrite(LED_R_PIN, 0);
+  analogWrite(LED_G_PIN, 255);
+  analogWrite(LED_B_PIN, 0);
+  server.sendResponse(client, getHTML().c_str());
+}
+
+void handleLedBlue(WiFiClient& client, const String& method, const String& request,
+                   const QueryParams& params, const String& jsonData) {
+  analogWrite(LED_R_PIN, 0);
+  analogWrite(LED_G_PIN, 0);
+  analogWrite(LED_B_PIN, 255);
+  server.sendResponse(client, getHTML().c_str());
+}
+
+void handleLedOffRGB(WiFiClient& client, const String& method, const String& request,
+                     const QueryParams& params, const String& jsonData) {
+  analogWrite(LED_R_PIN, 0);
+  analogWrite(LED_G_PIN, 0);
+  analogWrite(LED_B_PIN, 0);
+  server.sendResponse(client, getHTML().c_str());
+}
+
+void setup() {
+  Serial.begin(9600);
+  delay(1000);
+
+  pinMode(LED_R_PIN, OUTPUT);
+  pinMode(LED_G_PIN, OUTPUT);
+  pinMode(LED_B_PIN, OUTPUT);
+
+  Serial.println("ESP32 Web Server - RGB Control");
+
+  // Rutes
+  server.addRoute("/", handleHome);
+  server.addRoute("/led/red", handleLedRed);
+  server.addRoute("/led/green", handleLedGreen);
+  server.addRoute("/led/blue", handleLedBlue);
+  server.addRoute("/led/offrgb", handleLedOffRGB);
+
+  // Inici servidor
+  server.begin(WIFI_SSID, WIFI_PASSWORD);
+}
+
+void loop() {
+  server.handleClient();
+}
