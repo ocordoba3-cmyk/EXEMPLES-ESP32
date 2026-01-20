@@ -10,7 +10,7 @@ const char* ssid = "ESP32";        // Nombre del WiFi
 const char* password = "pruebaesp32"; // Contraseña del WiFi
 
 //  TOKEN DEL BOT DE TELEGRAM
-String BOTtoken = "8516251425:AAHol_Do9uYQYNidWgcD_qcQwPj90WTY4XY";
+String BOTtoken = "";
 
 WiFiClientSecure client;          // Cliente seguro para HTTPS
 UniversalTelegramBot bot(BOTtoken, client); // Bot de Telegram
